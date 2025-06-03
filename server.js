@@ -6,11 +6,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa?tls=true';
+const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa?retryWrites=true&w=majority';
 
 const client = new MongoClient(uri, {
-  tls: true,
-  tlsAllowInvalidCertificates: false, // keep certificate validation strict
+  serverApi: { version: '1' },
 });
 
 let collection;
@@ -28,9 +27,7 @@ async function startServer() {
 
       try {
         const exists = await collection.findOne({ idNumber, phoneNumber });
-        if (exists) {
-          return res.status(409).send('Duplicate application');
-        }
+        if (exists) return res.status(409).send('Duplicate application');
 
         await collection.insertOne({
           idNumber,
@@ -41,24 +38,14 @@ async function startServer() {
 
         res.status(200).send('Application submitted');
       } catch (err) {
-        console.error('Error during /submit:', err);
+        console.error('Error in /submit:', err);
         res.status(500).send('Server error');
       }
     });
 
     const PORT = process.env.PORT || 3000;
-    const server = app.listen(PORT, () => {
+    app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
-    });
-
-    // Graceful shutdown
-    process.on('SIGINT', async () => {
-      console.log('SIGINT received. Closing MongoDB connection...');
-      await client.close();
-      server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-      });
     });
 
   } catch (err) {
