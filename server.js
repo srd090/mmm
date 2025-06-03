@@ -6,8 +6,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa';
-const client = new MongoClient(uri);
+const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa?tls=true';
+
+const client = new MongoClient(uri, {
+  tls: true,
+  tlsAllowInvalidCertificates: false, // keep certificate validation strict
+});
 
 let collection;
 
@@ -43,7 +47,9 @@ async function startServer() {
     });
 
     const PORT = process.env.PORT || 3000;
-    const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    const server = app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
 
     // Graceful shutdown
     process.on('SIGINT', async () => {
@@ -57,7 +63,7 @@ async function startServer() {
 
   } catch (err) {
     console.error('Failed to connect to DB:', err);
-    process.exit(1); // Exit with failure if DB connection fails
+    process.exit(1);
   }
 }
 
