@@ -8,7 +8,7 @@ app.use(express.json());
 
 /*const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa' ;*/
 
-const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa?retryWrites=true&w=majority&appName=srd-sassa-gov-za'
+const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa?retryWrites=true&w=majority&appName=srd-sassa-gov-za';
 const client = new MongoClient(uri);
 let collection;
 
