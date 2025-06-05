@@ -6,10 +6,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-/*const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa' ;*/
-
 const uri = 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa?retryWrites=true&w=majority&appName=srd-sassa-gov-za';
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  tls: true
+});
+
 let collection;
 
 async function startServer() {
