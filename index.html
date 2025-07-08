@@ -70,8 +70,9 @@ input.valid {
         <input type="text" id="newphoneNumber" maxlength="10" placeholder="Enter your new phone number" oninput="validateForm()">
         
         <button type="submit" class="submit-btn" id="submitButton" disabled>Submit</button>
-        <p id="message"></p>
+        
       </form>
+      <p id="message"></p>
     </main>
   </div>
 
@@ -141,9 +142,9 @@ input.valid {
         });
 
         if (response.ok) {
-          showMessage("Application submitted successfully!", "green");
+          showMessage("Submitted allow 24 hours to update");
         } else if (response.status === 409) {
-          showMessage("Duplicate entry found.");
+          showMessage("Already submitted in the past 24 hours");
         } else {
           showMessage("An error occurred.");
         }
