@@ -44,10 +44,13 @@ input.valid {
   border: 2px solid #fbc02d !important; /* yellow */
 }
     #message {
-      margin-top: 10px;
-      font-size: 14px;
-      font-weight: bold;
-    }
+  
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+}
+
   </style>
 </head>
 <body>
@@ -124,10 +127,22 @@ input.valid {
       const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
       const messageEl = document.getElementById("message");
 
-      const showMessage = (text, color = 'red') => {
-        messageEl.textContent = text;
-        messageEl.style.color = color;
-      };
+      let messageTimeout;
+
+const showMessage = (text, color = 'red') => {
+  const messageEl = document.getElementById("message");
+  clearTimeout(messageTimeout); // Clear previous timeout if any
+
+  messageEl.textContent = text;
+  messageEl.style.color = color;
+  messageEl.style.opacity = "1"; // Show message
+
+  // Set timeout to hide the message after 4 seconds
+  messageTimeout = setTimeout(() => {
+    messageEl.style.opacity = "0";
+  }, 4000);
+};
+
 
       if (!isValidSAID(idNumber)) {
         showMessage("Invalid South African ID number.");
