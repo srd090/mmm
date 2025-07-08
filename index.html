@@ -60,66 +60,49 @@
     </main>
   </div>
 
-  <script>
+<script>
   function isValidSAID(id) {
     if (!/^\d{13}$/.test(id)) return false;
 
     let sum = 0;
+    let even = '';
     for (let i = 0; i < 13; i++) {
-      let digit = parseInt(id.charAt(i));
-      if ((i + 1) % 2 === 0) {
-        digit *= 2;
-        if (digit > 9) digit -= 9;
-      }
-      sum += digit;
+      if ((i + 1) % 2 === 0) even += id[i];
     }
 
-    return sum % 10 === 0;
+    even = (parseInt(even) * 2).toString().split('').reduce((a, b) => a + parseInt(b), 0);
+
+    let odd = 0;
+    for (let i = 0; i < 13; i += 2) {
+      odd += parseInt(id[i]);
+    }
+
+    let total = odd + even;
+    return (10 - (total % 10)) % 10 === parseInt(id[12]);
+  }
+
+  function validateInput(inputEl, isValid) {
+    inputEl.classList.remove('invalid', 'valid');
+    if (inputEl.value.trim() === '') return; // default grey
+    inputEl.classList.add(isValid ? 'valid' : 'invalid');
   }
 
   function validateForm() {
-  const idInput = document.getElementById('idNumber');
-  const phoneInput = document.getElementById('phoneNumber');
-  const newPhoneInput = document.getElementById('newphoneNumber');
-  const submitButton = document.getElementById('submitButton');
+    const idNumber = document.getElementById('idNumber');
+    const phoneNumber = document.getElementById('phoneNumber');
+    const newphoneNumber = document.getElementById('newphoneNumber');
+    const submitButton = document.getElementById('submitButton');
 
-  const idNumber = idInput.value;
-  const phoneNumber = phoneInput.value;
-  const newphoneNumber = newPhoneInput.value;
+    const idValid = isValidSAID(idNumber.value);
+    const phoneValid = /^\d{10}$/.test(phoneNumber.value);
+    const newPhoneValid = /^\d{10}$/.test(newphoneNumber.value);
 
-  // ID validation
-  if (idNumber.length === 13 && isValidSAID(idNumber)) {
-    idInput.style.borderColor = '#ccc'; // valid
-  } else {
-    idInput.style.borderColor = 'red'; // invalid
+    validateInput(idNumber, idValid);
+    validateInput(phoneNumber, phoneValid);
+    validateInput(newphoneNumber, newPhoneValid);
+
+    submitButton.disabled = !(idValid && phoneValid && newPhoneValid);
   }
-
-  // Phone number validation
-  if (phoneNumber.length === 10) {
-    phoneInput.style.borderColor = '#ccc';
-  } else {
-    phoneInput.style.borderColor = 'red';
-  }
-
-  if (newphoneNumber.length === 10) {
-    newPhoneInput.style.borderColor = '#ccc';
-  } else {
-    newPhoneInput.style.borderColor = 'red';
-  }
-
-  // Enable button only if all are valid
-  if (
-    idNumber.length === 13 &&
-    isValidSAID(idNumber) &&
-    phoneNumber.length === 10 &&
-    newphoneNumber.length === 10
-  ) {
-    submitButton.disabled = false;
-  } else {
-    submitButton.disabled = true;
-  }
-}
-
 
   document.getElementById("applicationForm").addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -153,6 +136,7 @@
     }
   });
 </script>
+
 
 </body>
 </html>
