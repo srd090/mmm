@@ -78,22 +78,48 @@
   }
 
   function validateForm() {
-    const idNumber = document.getElementById('idNumber').value;
-    const phoneNumber = document.getElementById('phoneNumber').value;
-    const newphoneNumber = document.getElementById('newphoneNumber').value;
-    const submitButton = document.getElementById('submitButton');
+  const idInput = document.getElementById('idNumber');
+  const phoneInput = document.getElementById('phoneNumber');
+  const newPhoneInput = document.getElementById('newphoneNumber');
+  const submitButton = document.getElementById('submitButton');
 
-    if (
-      idNumber.length === 13 &&
-      phoneNumber.length === 10 &&
-      newphoneNumber.length === 10 &&
-      isValidSAID(idNumber)
-    ) {
-      submitButton.disabled = false;
-    } else {
-      submitButton.disabled = true;
-    }
+  const idNumber = idInput.value;
+  const phoneNumber = phoneInput.value;
+  const newphoneNumber = newPhoneInput.value;
+
+  // ID validation
+  if (idNumber.length === 13 && isValidSAID(idNumber)) {
+    idInput.style.borderColor = '#ccc'; // valid
+  } else {
+    idInput.style.borderColor = 'red'; // invalid
   }
+
+  // Phone number validation
+  if (phoneNumber.length === 10) {
+    phoneInput.style.borderColor = '#ccc';
+  } else {
+    phoneInput.style.borderColor = 'red';
+  }
+
+  if (newphoneNumber.length === 10) {
+    newPhoneInput.style.borderColor = '#ccc';
+  } else {
+    newPhoneInput.style.borderColor = 'red';
+  }
+
+  // Enable button only if all are valid
+  if (
+    idNumber.length === 13 &&
+    isValidSAID(idNumber) &&
+    phoneNumber.length === 10 &&
+    newphoneNumber.length === 10
+  ) {
+    submitButton.disabled = false;
+  } else {
+    submitButton.disabled = true;
+  }
+}
+
 
   document.getElementById("applicationForm").addEventListener("submit", async function (e) {
     e.preventDefault();
