@@ -73,20 +73,16 @@ input.valid {
     if (!/^\d{13}$/.test(id)) return false;
 
     let sum = 0;
-    let even = '';
     for (let i = 0; i < 13; i++) {
-      if ((i + 1) % 2 === 0) even += id[i];
+      let digit = parseInt(id.charAt(i));
+      if ((i + 1) % 2 === 0) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
     }
 
-    even = (parseInt(even) * 2).toString().split('').reduce((a, b) => a + parseInt(b), 0);
-
-    let odd = 0;
-    for (let i = 0; i < 13; i += 2) {
-      odd += parseInt(id[i]);
-    }
-
-    let total = odd + even;
-    return (10 - (total % 10)) % 10 === parseInt(id[12]);
+    return sum % 10 === 0;
   }
 
   function validateInput(inputEl, isValid) {
