@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://mkasigiven09:yGiI6nmIj33vDrhk@srd-sassa-gov-za.qnutzho.mongodb.net/sassa';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://mkasigiven09:Mkasi0152@srd-sassa-gov-za.qnutzho.mongodb.net/sassa';
 
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
